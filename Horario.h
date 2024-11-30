@@ -1,3 +1,6 @@
+#ifndef HORARIO_H
+#define HORARIO_H
+
 #include <iostream>
 #include "sqlite3.h"
 #include <string>
@@ -10,54 +13,41 @@ void registrarActividad(sqlite3* db, const string& contrasenha);
 void mostrarHorario(sqlite3* db, const string& contrasenha);
 void eliminarActividad(sqlite3* db, const string& contrasenha);
 
-int main() {
-    sqlite3* db;
-    string dbName = "mi_base_de_datos.db";
 
-    // Abrir la base de datos
-    if (sqlite3_open(dbName.c_str(), &db) != SQLITE_OK) {
-        cerr << "Error al abrir la base de datos: " << sqlite3_errmsg(db) << endl;
-        return 1;
+namespace base_datos {  //organiza el codigo sin duplicar el main
+    void Horario(sqlite3* db, const string& contrasenha) {
+        // Crear la tabla de horarios si no existe
+        crearTablaHorarios(db);
+
+        int opc;
+        do { 
+            mostrarMenu();
+            cin >> opc;
+            system("cls");
+            cin.ignore(); // Limpiar el buffer de entrada
+
+            switch (opc) {
+            case 1:
+                registrarActividad(db, contrasenha);
+                break;
+            case 2:
+                mostrarHorario(db, contrasenha);
+                break;
+            case 3:
+                eliminarActividad(db, contrasenha);
+                break;
+            case 0:
+                cout << "Saliendo...\n";
+                break;
+            default:
+                cout << "Opción no valida. Por favor, intente nuevamente.\n";
+                break;
+            }
+        } while (opc != 0);
+
+        // Cerrar la base de datos
+        sqlite3_close(db);
     }
-
-    // Crear la tabla de horarios si no existe
-    crearTablaHorarios(db);
-
-    string contrasenha;
-    cout << "Ingrese su contrasenha de usuario: ";
-    cin.ignore();
-    getline(cin, contrasenha);
-    system("cls");
-
-    int opc;
-    do {
-        mostrarMenu();
-        cin >> opc;
-        system("cls");
-        cin.ignore(); // Limpiar el buffer de entrada
-
-        switch (opc) {
-        case 1:
-            registrarActividad(db, contrasenha);
-            break;
-        case 2:
-            mostrarHorario(db, contrasenha);
-            break;
-        case 3:
-            eliminarActividad(db, contrasenha);
-            break;
-        case 0:
-            cout << "Saliendo...\n";
-            break;
-        default:
-            cout << "Opción no valida. Por favor, intente nuevamente.\n";
-            break;
-        }
-    } while (opc != 0);
-
-    // Cerrar la base de datos
-    sqlite3_close(db);
-    return 0;
 }
 
 void mostrarMenu() {
@@ -98,3 +88,5 @@ void eliminarActividad(sqlite3* db, const string& contrasenha) {
 
     bdEliminar(db, contrasenha, actividad);
 }
+
+#endif
