@@ -5,6 +5,14 @@
 #include "DBRegister.h"
 #include "Horario.h" //se vincula a este archivo porque es desde aqui que se va al archivo de Horario.h
 #include "Medicamentos.h"
+#include "DetectorDeCaidas.h"
+#include "vincular.h"// incluir ******
+#include "vincularCuidador.h"//incluir****
+#include "Alertas.h"//incluir***
+#include "Habitos.h"
+#include "Mediciones.h"
+#include "ContactosEmergencia.h"
+
 using namespace std;
 
 sqlite3* db;
@@ -69,6 +77,7 @@ void addCuidador(const string& nombre, const string& usuario, const string& cont
     handleError(rc, errMsg);
 }
 
+
 //Leer la base datos y comparar si es correcto las credenciales pacientes
 bool readPacientes(const string& LoginUser, const string& LoginPass) {
     const char* sql = "SELECT * FROM Pacientes;";
@@ -88,22 +97,30 @@ bool readPacientes(const string& LoginUser, const string& LoginPass) {
         const unsigned char* NameBase = sqlite3_column_text(stmt, 0);
         const unsigned char* UserBase = sqlite3_column_text(stmt, 1);
         const unsigned char* PassBase = sqlite3_column_text(stmt, 2);
+        const unsigned char* CodeBase = sqlite3_column_text(stmt, 3); //para codigo****
 
         string User = reinterpret_cast<const char*>(UserBase);
         string Pass = reinterpret_cast<const char*>(PassBase);
 
 
         if (LoginUser == User) {
-            int opc;
             userFound = true;
 
             if (LoginPass == Pass) {
-                cout << "\t**Bienvenido** " << NameBase << endl;
+                //nueva declaracion***
+                string Name = reinterpret_cast<const char*>(NameBase);
+                string UserCode = reinterpret_cast<const char*>(CodeBase);
+
+                cout << "\t*Bienvenido* " << Name << endl;
+
+                int opc;
                 do {
-                    ShowMenu2();
+                    //nuevo menu solo para Pacientes
+                    MenuPacientes(Name, UserCode); // Pasar los valores como parámetros
                     cin >> opc;
                     cin.ignore();
                     system("cls");
+
                     switch (opc) {
                     case 1:
                         base_datos::Horario(db, LoginPass);
@@ -111,28 +128,51 @@ bool readPacientes(const string& LoginUser, const string& LoginPass) {
                     case 2:
                         base_datos::Medicamentos(db, LoginPass);
                         break;
+                    case 3: //Signos
+                        base_datos::DetectorCaidas(db, LoginPass);
+                        break;
+                    case 4: //habitos
+                        base_datos::Habitos(db, LoginPass);
+                        break;
+                    case 5: //nueva opcion****
+                        Perfil(Name, UserCode); // Llamar a Perfil con los valores correctos
+                        break;
+                    case 6: //Mediciones
+                        base_datos::Mediciones(db, LoginPass);
+                        break;
+                    case 7://nueva opcion****
+                        vincularCuidadorParaPaciente(Name, UserCode);
+                        break;
+                    case 8://nueva opcion****
+                        alertasPa();
+                        break;
+                    case 9: //Contactos
+                        base_datos::ContactosEmergencia(db, LoginPass);
+                        break;
                     case 0:
-                        cout << "saliendo...";
+                        cout << "Saliendo...";
                         break;
                     default:
-                        cout << "esta opcion no esta disponible.";
+                        cout << "Esta opción no está disponible.";
                         break;
-                    }            
+                    }
                 } while (opc != 0);
+
                 sqlite3_finalize(stmt);
                 return true;
             }
             else {
-                cout << "\t**Contrasenha incorrecta**" << endl;
+                cout << "\t*Contraseña incorrecta*" << endl;
                 sqlite3_finalize(stmt);
                 return false;
             }
         }
+
     }
 
 
     if (!userFound) {
-        cout << "\t**Usuario incorrecto**" << endl;
+        cout << "\t*Usuario incorrecto*" << endl;
     }
 
 
@@ -144,7 +184,6 @@ bool readPacientes(const string& LoginUser, const string& LoginPass) {
 bool readCuidadores(const string& LoginUser, const string& LoginPass) {
     const char* sql = "SELECT * FROM Cuidadores;";
     sqlite3_stmt* stmt;
-
 
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
@@ -159,6 +198,7 @@ bool readCuidadores(const string& LoginUser, const string& LoginPass) {
         const unsigned char* NameBase = sqlite3_column_text(stmt, 0);
         const unsigned char* UserBase = sqlite3_column_text(stmt, 1);
         const unsigned char* PassBase = sqlite3_column_text(stmt, 2);
+        const unsigned char* CodeBase = sqlite3_column_text(stmt, 3); //para codigo****
 
         string User = reinterpret_cast<const char*>(UserBase);
         string Pass = reinterpret_cast<const char*>(PassBase);
@@ -167,18 +207,38 @@ bool readCuidadores(const string& LoginUser, const string& LoginPass) {
             userFound = true;
 
             if (LoginPass == Pass) {
-                cout << "\T**Bienvenido**" << NameBase << endl;
+
+                //nueva declaracion***
+                string Name = reinterpret_cast<const char*>(NameBase);
+                string UserCode = reinterpret_cast<const char*>(CodeBase);
+
+                cout << "\t*Bienvenido*" << NameBase << endl;
                 do {
-                    ShowMenu2();
-                    cin.ignore();
+                    MenuCuidadores(Name, UserCode); //nuevo menu solo para cuidadores
                     cin >> opc;
                     cin.ignore();
+                    system("cls");
                     switch (opc) {
                     case 1: //horarios
                         base_datos::Horario(db, LoginPass);
                         break;
                     case 2: //Medicamentos
                         base_datos::Medicamentos(db, LoginPass);
+                        break;
+                    case 3: //Signos
+                        base_datos::DetectorCaidas(db, LoginPass);
+                        break;
+                    case 4: //datos cuidador
+                        Perfil(Name, UserCode);
+                        break;
+                    case 5: //nueva opcion***
+                        vincularPaciente();
+                        break;
+                    case 6: //nueva opcion****
+                        vincularCuidadores();
+                        break;
+                    case 7: //nueva opcion***
+                        alertasCui();
                         break;
                     case 0:
                         cout << "Saliendo... ";
@@ -193,7 +253,7 @@ bool readCuidadores(const string& LoginUser, const string& LoginPass) {
                 return true;
             }
             else {
-                cout << "\T**Contrasenha incorrecta**" << endl;
+                cout << "\t*Contrasenha incorrecta*" << endl;
                 sqlite3_finalize(stmt);
                 return false;
             }
@@ -202,13 +262,14 @@ bool readCuidadores(const string& LoginUser, const string& LoginPass) {
 
 
     if (!userFound) {
-        cout << "\t**Usuario incorrecto**" << endl;
+        cout << "\t*Usuario incorrecto*" << endl;
     }
 
 
     sqlite3_finalize(stmt);
     return false;
 }
+
 
 //PROTOTIPO PARA NO REGISTRAR USUSRAIOS DOBLES
 bool RepeatUserPacientes(const string& RegisterUser) {
@@ -227,7 +288,7 @@ bool RepeatUserPacientes(const string& RegisterUser) {
         string User = reinterpret_cast<const char*>(UserBase);
 
         if (RegisterUser == User) {
-            cout << "\t**Este usuario ya ah sido registrado**" << endl;
+            cout << "\t*Este usuario ya ah sido registrado*" << endl;
             return true;
         }
     }
@@ -237,7 +298,7 @@ bool RepeatUserPacientes(const string& RegisterUser) {
 // registrar dobles pacientes
 bool RepeatUserCuidadores(const string& RegisterUser) {
 
-    const char* sql = "SELECT * FROM Cudiadores;";
+    const char* sql = "SELECT * FROM Cuidadores;";
     sqlite3_stmt* stmt;
 
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
@@ -251,20 +312,91 @@ bool RepeatUserCuidadores(const string& RegisterUser) {
         string User = reinterpret_cast<const char*>(UserBase);
 
         if (RegisterUser == User) {
-            cout << "\t**Este usuario ya ah sido registrado**" << endl;
+            cout << "\t*Este usuario ya ah sido registrado*" << endl;
             return true;
         }
     }
     return false;
 }
 
-void ShowMenu2() {
+//nuevo menu solo para pacientes***
+void MenuPacientes(const string& Name, const string& UserCode) {
     cout << "\t\t\t\t" << endl;
-    cout << "\t*-*-*-*-*-*-*\t" << endl;
+    cout << "\t*------\t" << endl;
     cout << "\t  Health-Grand  \t" << endl;
     cout << "\t1.Horarios\t" << endl;
     cout << "\t2.Medicamentos\t" << endl;
+    cout << "\t3.Signos\t" << endl;
+    cout << "\t4.Habitos\t" << endl;
+    cout << "\t5.perfil\t" << endl;
+    cout << "\t6.Mediciones\t" << endl;
+    cout << "\t7.Vincular con Cuidador\t" << endl;
+    cout << "\t8.Notificacion/Alertas\t" << endl;
+    cout << "\t9.Contactos de Emergencia\t" << endl;
     cout << "\t0.Salir\t" << endl;
-    cout << "\t*-*-*-*-*-*-*\t" << endl;
+    cout << "\t*------\t" << endl;
     cout << "\t\t\t\t" << endl;
+}
+//nuevo menu solo para Cuidadores*****
+void MenuCuidadores(const string& Name, const string& UserCode) {
+    cout << "\t\t\t\t" << endl;
+    cout << "\t*------\t" << endl;
+    cout << "\t  Health-Grand  \t" << endl;
+    cout << "\t1.Horarios\t" << endl;
+    cout << "\t2.Medicamentos\t" << endl;
+    cout << "\t3.Signos\t" << endl;
+    cout << "\t4.perfil\t" << endl;
+    cout << "\t5.Vincular con Pacientes\t" << endl;
+    cout << "\t6.Vincular con Cuidadores\t" << endl;
+    cout << "\t7.Notificacion/Alertas\t" << endl;
+    cout << "\t0.Salir\t" << endl;
+    cout << "\t*------\t" << endl;
+    cout << "\t\t\t\t" << endl;
+}
+
+// buscar paciente***
+string buscarPacientePorCodigo(const string& codigo) {
+    extern sqlite3* db;
+    const char* sql = "SELECT NOMBRE FROM Pacientes WHERE CODIGO = ?;";
+    sqlite3_stmt* stmt;
+    string nombrePaciente;
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Error al preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return "";
+    }
+
+    sqlite3_bind_text(stmt, 1, codigo.c_str(), -1, SQLITE_STATIC);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        nombrePaciente = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    }
+
+    sqlite3_finalize(stmt);
+
+    return nombrePaciente;
+}
+//buscar cuidadores **
+string buscarCuidadorPorCodigo(const string& codigo) {
+    extern sqlite3* db;
+    const char* sql = "SELECT NOMBRE FROM Cuidadores WHERE CODIGO = ?;";
+    sqlite3_stmt* stmt;
+    string nombreCuidador;
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Error al preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return "";
+    }
+
+    sqlite3_bind_text(stmt, 1, codigo.c_str(), -1, SQLITE_STATIC);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        nombreCuidador = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    }
+
+    sqlite3_finalize(stmt);
+
+    return nombreCuidador;
 }
