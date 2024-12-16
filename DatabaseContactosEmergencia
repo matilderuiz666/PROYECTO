@@ -1,0 +1,101 @@
+#ifndef DATABASECONTACTOSEMERGENCIA_H
+#define DATABASECONTACTOSEMERGENCIA_H
+
+#include "sqlite3.h"
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+void crearTablaContactos(sqlite3* db);
+void bdAñadirContacto(sqlite3* db, const string& contrasenha, const string& nombre, const string& relacion, const string& telefono);
+void bdConsultarContactos(sqlite3* db, const string& contrasenha);
+void bdEliminarContacto(sqlite3* db, const string& contrasenha, const string& nombre);
+
+// Función para crear la tabla de contactos
+void crearTablaContactos(sqlite3* db) {
+    const char* sql = "CREATE TABLE IF NOT EXISTS ContactosEmergencia ("
+        "PacienteCodigo TEXT NOT NULL, "
+        "Nombre TEXT NOT NULL, "
+        "Relacion TEXT NOT NULL, "
+        "Telefono TEXT NOT NULL);";
+    char* errMsg;
+    int rc = sqlite3_exec(db, sql, nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "Error al crear la tabla de contactos: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    }
+}
+
+// Función para añadir un contacto en la base de datos
+void bdAñadirContacto(sqlite3* db, const string& contrasenha, const string& nombre, const string& relacion, const string& telefono) {
+    string sql = "INSERT INTO ContactosEmergencia (PacienteCodigo, Nombre, Relacion, Telefono) VALUES ('" +
+        contrasenha + "', '" + nombre + "', '" + relacion + "', '" + telefono + "');";
+
+    char* errMsg = nullptr;
+    int rc = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg);
+
+    if (rc != SQLITE_OK) {
+        cerr << "Error al añadir el contacto: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    }
+    else {
+        cout << "\nContacto añadido correctamente.\n";
+        // Pausa antes de limpiar la pantalla
+        cout << "\n\nPresione Enter para continuar...";
+        cin.ignore(); // Espera a que el usuario presione Enter
+        system("cls");
+    }
+}
+
+// Función para consultar los contactos
+void bdConsultarContactos(sqlite3* db, const string& contrasenha) {
+    string sql = "SELECT Nombre, Relacion, Telefono FROM ContactosEmergencia WHERE PacienteCodigo = '" + contrasenha + "';";
+    sqlite3_stmt* stmt;
+
+    int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Error al preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    cout << "----------------------------------\n";
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        const char* nombre = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        const char* relacion = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        const char* telefono = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+
+        cout << nombre << " (" << relacion << "): " << telefono << endl;
+    }
+    cout << "----------------------------------\n";
+
+    sqlite3_finalize(stmt);
+
+    // Pausa para que el usuario pueda leer los contactos
+    cout << "\n\nPresione Enter para regresar al menu...";
+    cin.ignore();  // Limpia el buffer de entrada
+
+    // Limpia la pantalla antes de regresar al menú
+    system("cls");
+}
+
+// Función para eliminar un contacto
+void bdEliminarContacto(sqlite3* db, const string& contrasenha, const string& nombre) {
+    string sql = "DELETE FROM ContactosEmergencia WHERE PacienteCodigo = '" + contrasenha + "' AND Nombre = '" + nombre + "';";
+    char* errMsg = nullptr;
+
+    int rc = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "Error al eliminar el contacto: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    }
+    else {
+        cout << "\nContacto eliminado correctamente.\n";
+        // Pausa antes de limpiar la pantalla
+        cout << "\n\nPresione Enter para continuar...";
+        cin.ignore(); // Espera a que el usuario presione Enter
+        system("cls");
+    }
+}
+
+#endif
