@@ -44,12 +44,12 @@ int main() {
 //Menu de inicio
 void ShowMenu() {
     cout << "\t\t\t\t" << endl;
-    cout << "\t*-*-*-*-*-*-*\t" << endl;
+    cout << "\t*------\t" << endl;
     cout << "\t  Health-Grand  \t" << endl;
     cout << "\t1.Registrarse\t" << endl;
     cout << "\t2.Loguearse\t" << endl;
     cout << "\t0.Salir\t" << endl;
-    cout << "\t*-*-*-*-*-*-*\t" << endl;
+    cout << "\t*------\t" << endl;
     cout << "\t\t\t\t" << endl;
 }
 
@@ -58,13 +58,13 @@ void RegisterMenu() {
     int TypeOfAccount;
     do {
         cout << "\t\t\t\t" << endl;
-        cout << "\t*-*-*-*-*-*-*\t" << endl;
+        cout << "\t*------\t" << endl;
         cout << "\tHealth-Grand\t" << endl;
         cout << "\tQue tipo de cuenta va a crear\t" << endl;
         cout << "\t1.Cuenta de paciente\t" << endl;
         cout << "\t2.Cuenta de cuidador\t" << endl;
         cout << "\t0.Salir\t" << endl;
-        cout << "\t*-*-*-*-*-*-*\t" << endl;
+        cout << "\t*------\t" << endl;
         cout << "\t\t\t\t" << endl;
         cin >> TypeOfAccount;
         cin.ignore();
@@ -93,7 +93,7 @@ void Register(int TypeOfAccount) {
     int Option;
     do {
         cout << "\t\t\t\t" << endl;
-        cout << "\t*-*-*-*-*-*-*\t" << endl;
+        cout << "\t*------\t" << endl;
         cout << "\tHealth-Grand\t" << endl;
         cout << "\t1.Nombre completo\t" << endl;
         cout << "\t" << Name << "\t" << endl;
@@ -103,7 +103,7 @@ void Register(int TypeOfAccount) {
         cout << "\t" << Pass << "\t" << endl;
         cout << "\t4.Registrarse\t" << endl;
         cout << "\t0.Salir\t" << endl;
-        cout << "\t*-*-*-*-*-*-*\t" << endl;
+        cout << "\t*------\t" << endl;
         cout << "\t\t\t\t" << endl;
         cin >> Option;
         cin.ignore();
@@ -146,7 +146,7 @@ void Register(int TypeOfAccount) {
         case 0:
             break;
         default:
-            cout << "\t**Opcion invalida**\t" << endl;
+            cout << "\t*Opcion invalida*\t" << endl;
             break;
         }
     } while (Option != 0);
@@ -156,16 +156,16 @@ void Register(int TypeOfAccount) {
 void MenuLogin() {
     string User, Pass, Data;
     int TypeOfAccount;
-    bool UserExist=1;
+    bool UserExist = 1;
     do {
         cout << "\t\t\t\t" << endl;
-        cout << "\t*-*-*-*-*-*-*\t" << endl;
+        cout << "\t*------\t" << endl;
         cout << "\tHealth-Grand\t" << endl;
         cout << "\tComo Ingresar\t" << endl;
         cout << "\t1.Ingresar como paciente\t" << endl;
         cout << "\t2.Ingresar como cuidador\t" << endl;
         cout << "\t0.Salir\t" << endl;
-        cout << "\t*-*-*-*-*-*-*\t" << endl;
+        cout << "\t*------\t" << endl;
         cout << "\t\t\t\t" << endl;
         cin >> TypeOfAccount;
         cin.ignore();
@@ -194,7 +194,7 @@ void Login(int TypeOfAccount) {
     int Option;
     do {
         cout << "\t\t\t\t" << endl;
-        cout << "\t*-*-*-*-*-*-*\t" << endl;
+        cout << "\t*------\t" << endl;
         cout << "\tHealth-Grand\t" << endl;
         cout << "\t1.Numero de telefono\t" << endl;
         cout << "\t" << User << "\t" << endl;
@@ -202,7 +202,7 @@ void Login(int TypeOfAccount) {
         cout << "\t" << Pass << "\t" << endl;
         cout << "\t3.Loguearse\t" << endl;
         cout << "\t0.Salir\t" << endl;
-        cout << "\t*-*-*-*-*-*-*\t" << endl;
+        cout << "\t*------\t" << endl;
         cout << "\t\t\t\t" << endl;
         cin >> Option;
         cin.ignore();
@@ -226,7 +226,7 @@ void Login(int TypeOfAccount) {
             else
                 UserExist = readCuidadores(User, Pass);
             break;
-            
+
         case 0:
             break;
         default:
@@ -244,17 +244,17 @@ bool CheckSpacesAndSize(string Data) {
         return true;
     Size = Data.length();
     if (Size < 8) {
-        cout << "\t**Tus datos deben tener mas de 8 digitos**";
+        cout << "\t*Tus datos deben tener mas de 8 digitos*";
         return true;
     }
     if (Data.at(0) == ' ' || Data.at(Size - 1) == ' ') {
-        cout << "\t**No puede tener espacios ni al inicio ni al final**" << endl;
+        cout << "\t*No puede tener espacios ni al inicio ni al final*" << endl;
         return true;
     }
     for (int i = 0;i < Size;i++) {
         Letter = Data.at(i);
         if (Letter == ' ') {
-            cout << "\t**Porfavor no utilice espacios**" << endl;
+            cout << "\t*Porfavor no utilice espacios*" << endl;
             return true;
         }
     }
@@ -269,18 +269,18 @@ bool CheckSpacesAndSizeName(string Data) {
         return true;
     Size = Data.length();
     if (Size < 8) {
-        cout << "\t**Debe tener mas de 8 digitos**" << endl;
+        cout << "\t*Debe tener mas de 8 digitos*" << endl;
         return true;
     }
     if (Data.at(0) == ' ' || Data.at(Size - 1) == ' ') {
-        cout << "\t**no puede tener espacios ni al inicio ni al final**" << endl;
+        cout << "\t*no puede tener espacios ni al inicio ni al final*" << endl;
         return true;
     }
     for (int i = 0;i < Size - 1;i++) {
         Letter1 = Data.at(i);
         Letter2 = Data.at(i + 1);
         if (Letter1 == ' ' && Letter2 == ' ') {
-            cout << "\t**Porfavor solo utilize un espacio para separar los nombres**" << endl;
+            cout << "\t*Porfavor solo utilize un espacio para separar los nombres*" << endl;
             return true;
         }
     }
@@ -300,4 +300,3 @@ string GenerateNewUserCode(string Name, string PhoneN) {
     }
     return UserCode;
 }
-
